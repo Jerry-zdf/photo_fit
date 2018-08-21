@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ECF version="1.4.2">
+	<!-- ECF parameter dump - list of all parameters -->
+	<Algorithm>
+		<SteadyStateTournament>
+			<Entry key="tsize">3</Entry>
+			<!-- tournament size (individuals selected randomly, worst one eliminated) -->
+		</SteadyStateTournament>
+	</Algorithm>
+	<Genotype>
+		<MyFPGenotype>
+			<Entry key="crx.discrete">1</Entry>
+			<Entry key="max.vec">0.01 5.0 50.0 2.0</Entry>
+			<Entry key="min.vec">0.000001 1.01 -50.0 -2.0</Entry>
+			<Entry key="mut.gauss.indrate">0.4</Entry>
+			<Entry key="mut.gauss.stdev">0.005 1.8 4.0 1.5</Entry>
+			<Entry key="mut.gauss.vecrate">0.4 0.4 0.4 0.4</Entry>
+			<Entry key="size">4</Entry>
+		</MyFPGenotype>
+	</Genotype>
+	<Registry>
+                <Entry key="population.size">100</Entry>
+                <Entry key="term.maxgen">100</Entry>
+                <Entry key="term.eval">100000</Entry>
+                <Entry key="log.frequency">1</Entry>
+                <Entry key="log.level">3</Entry>
+                <Entry key="randomizer.seed">0</Entry>
+	</Registry>
+</ECF>
