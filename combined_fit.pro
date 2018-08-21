@@ -16,11 +16,13 @@ SOURCES += \
     src/MyFloatingPoint.cc \
     src/main.cpp \
     src/GaussianFitFunctor.cpp \
-    src/EvalOp.cc
+    src/EvalOp.cc \
+    src/basis.cpp
 
 HEADERS += \
     src/RandomNumbers.h \
     src/GaussMutOp.h \
     src/MyFloatingPoint.h \
     src/GaussianFitFunctor.h \
-    src/EvalOp.h
+    src/EvalOp.h \
+    src/basis.h

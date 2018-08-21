@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for l in {0..10}
+for l in {0..6}
 do
 	echo "$l    $k"
 	echo $(date) > log_$1_$l.out
