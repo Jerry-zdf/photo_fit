@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
     state->setEvalOp(new EvalOp(fit));
     state->addGenotype(gen);
-    char *ecf_command[2] = {"./comb_fit", "parameters.txt"};
+    char *ecf_command[] = {"./comb_fit", "parameters.txt"};
     state->initialize(3, ecf_command);
     state->run();
 
