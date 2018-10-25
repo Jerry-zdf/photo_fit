@@ -96,7 +96,7 @@ bool GTOPW::read(std::istream &is) {
         if (i == 0)
             k = {k0, k1, k2};
         else if (k0 != k[0] || k1 != k[1] || k2 != k[2])
-            throw std::runtime_error("Invalind gtopw contraction read - check k.");
+            throw std::runtime_error("Invalind gtopw contraction read - check k. They must be uniform.");
     }
 
     return true;

@@ -11,7 +11,7 @@ def o_function(l, k, r):
     res *= mpmath.exp(mpmath.pi/(2 * k))
     return res
 
-l_max = 10
+l_max = 6
 r_min = 0.01
 r_step = 0.1
 r_max = 30.
@@ -34,4 +34,6 @@ for kval in kvals:
             r += r_step
 
         output_file.close()
+        os.system("build/Debug/./photo_fit " + file_name)
+    
 

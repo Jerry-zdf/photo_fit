@@ -63,7 +63,7 @@ class GTOPW {
     friend std::ostream &operator<<(std::ostream &os, const GTOPW &rhs);
     bool read(std::istream &is);
     int functions_number() const;
-    void set_kvec(const Vec3d &kvec) { k = kvec; };
+    inline void set_kvec(const Vec3d &kvec) { k = kvec; };
 
    private:
     std::vector<double> exps;
@@ -82,8 +82,8 @@ class Basis {
     bool read(std::istream &is);
     friend std::ostream &operator<<(std::ostream &os, const Basis &rhs);
     int functions_number() const;
-    void set_position(const Vec3d &pos) { position = pos; };
-    void set_label(const std::string &lb) { label = lb; };
+    inline void set_position(const Vec3d &pos) { position = pos; };
+    inline void set_label(const std::string &lb) { label = lb; };
 
    private:
     std::vector<GTOPW> gtopws;

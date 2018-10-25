@@ -1,28 +1,25 @@
 #include <ecf/ECF.h>
 
-#include "MyFloatingPoint.h"
 #include "EvalOp.h"
+#include "MyFloatingPoint.h"
 #include "basis.h"
 
+#include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
-#include <ctime>
 
 using namespace Eigen;
 using namespace std;
 
-double Norm(double a, int l)
-{
+double Norm(double a, int l) {
     double norm_sqrt = 1.0 / pow(a, 1.5 + l);
     return sqrt(norm_sqrt);
 }
 
-int main(int argc, char *argv[])
-{
-    if (argc != 2)
-    {
-        cout << " Usage: ./comb_fit <input_file> \n";
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        cout << " Usage: ./photo_fit <input_file> \n";
         exit(EXIT_SUCCESS);
     }
 
@@ -31,15 +28,15 @@ int main(int argc, char *argv[])
     int gauss_n = 10;
 
     string input_file = argv[1];
-    size_t l_pos = input_file.find("l");
-    size_t l2_pos = input_file.find(".dat");
-    string l_number = input_file.substr(l_pos + 1, l2_pos - l_pos - 1);
-    int l = atoi(l_number.c_str());
+    size_t l_pos      = input_file.find("l");
+    size_t l2_pos     = input_file.find(".dat");
+    string l_number   = input_file.substr(l_pos + 1, l2_pos - l_pos - 1);
+    int l             = atoi(l_number.c_str());
 
-    size_t k_pos = input_file.find("k");
+    size_t k_pos  = input_file.find("k");
     size_t k2_pos = input_file.find("_l");
-    string kstr = input_file.substr(k_pos + 1, k2_pos - k_pos - 1);
-    double kval = atof(kstr.c_str());
+    string kstr   = input_file.substr(k_pos + 1, k2_pos - k_pos - 1);
+    double kval   = atof(kstr.c_str());
 
     ifstream input;
     input.open(input_file);
@@ -49,40 +46,35 @@ int main(int argc, char *argv[])
     vector<complex<double>> yvec;
     string buff;
 
-    if (input.is_open())
-    {
-        while (getline(input, buff))
-        {
+    if (input.is_open()) {
+        while (getline(input, buff)) {
             stringstream line(buff);
             line >> rn >> real >> imag;
             rvec.push_back(rn);
             yvec.push_back(complex<double>(real, imag));
         }
-    }
-    else
-    {
-        cerr << " Unable to open input_file !\n";
-        exit(EXIT_FAILURE);
-    }
+    } else
+        throw runtime_error("Unable to open input_file !");
+
     input.close();
 
-    ArrayXd rv = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
+    ArrayXd rv  = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
     ArrayXcd yv = Map<ArrayXcd, Eigen::Unaligned>(yvec.data(), yvec.size());
 
     GaussianFit fit(gauss_n, rv, yv);
     fit.setL(l);
 
     cout << "\n\n"
-         << "============================="
-         << " STARTING EVOLUTIONARY ROUTINE "
-         << "============================="
+         << "======================================"
+         << "    STARTING EVOLUTIONARY ROUTINE     "
+         << "======================================"
          << "\n\n";
 
     StateP state(new State);
     MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
     state->setEvalOp(new EvalOp(fit));
     state->addGenotype(gen);
-    char *ecf_command[] = {"./comb_fit", "parameters.txt"};
+    char *ecf_command[] = {"./photo_fit", "parameters.txt"};
     state->initialize(3, ecf_command);
     state->run();
 
@@ -94,9 +86,9 @@ int main(int argc, char *argv[])
         lm_sol[i] = best_gene->realValue[i];
 
     cout << "\n\n"
-         << "============================="
+         << "======================================"
          << " STARTING LEVENBERG-MARQUARDT ROUTINE "
-         << "============================="
+         << "======================================"
          << "\n\n";
 
     cout << " Starting solution:\n " << lm_sol.transpose() << "\n";
@@ -127,15 +119,14 @@ int main(int argc, char *argv[])
     VectorXd expv(gauss_n);
     expv(0) = lm_sol(0);
 
-    for (int k = 1; k < expv.size(); ++k)
-    {
+    for (int k = 1; k < expv.size(); ++k) {
         expv[k] = lm_sol(0) * pow(lm_sol(1), k) * (1. + lm_sol(2) * pow((double)k / expv.size(), lm_sol(3)));
     }
 
     size_t dir_pos = input_file.find("input/");
     input_file.erase(input_file.begin(), input_file.begin() + 6 + dir_pos);
 
-    string output_file = "output2/fit_z1_k" + kstr + ".dat";
+    string output_file = "output/fit_z1_k" + kstr + ".dat";
     ofstream output(output_file, ios::app);
     if (l == 0)
         output << "CONT 0   0.000000 0.000000 0.000000\n";
@@ -143,9 +134,8 @@ int main(int argc, char *argv[])
     vector<double> exps(gauss_n);
     vector<cdouble> coefs(gauss_n);
 
-    for (int i = 0; i < gauss_n; ++i)
-    {
-        exps[i] = expv[i];
+    for (int i = 0; i < gauss_n; ++i) {
+        exps[i]  = expv[i];
         coefs[i] = std::complex<double>(ls_sol.head(expv.size())[i], ls_sol.tail(expv.size())[i]);
         coefs[i] *= Norm(exps[i], l);
     }
@@ -156,7 +146,7 @@ int main(int argc, char *argv[])
 
     cout << endl
          << setprecision(3);
-    clock_t t_end = clock();
+    clock_t t_end  = clock();
     float duration = t_end - t_start;
     cout << " CPU time: " << duration / CLOCKS_PER_SEC << "\n";
 }
