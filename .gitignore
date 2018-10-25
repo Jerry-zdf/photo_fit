@@ -1,4 +1,3 @@
-input
-output
-objects
-comb_fit
+input/*.dat
+output/*.dat
+build
