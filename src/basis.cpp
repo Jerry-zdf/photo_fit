@@ -9,10 +9,12 @@ const std::map<char, int> Shell::charmap = {{'S', 0},
                                             {'F', 3},
                                             {'G', 4},
                                             {'H', 5},
-                                            {'J', 6}};
+                                            {'I', 6},
+                                            {'K', 7},
+                                            {'L', 8}};
 
 const std::array<int, 11> Shell::crt_siz = {1, 3, 6, 10, 15, 21, 28, 36, 45, 55};
-const std::array<int, 11> Shell::labels  = {'S', 'P', 'D', 'F', 'G', 'H', 'I'};
+const std::array<int, 11> Shell::labels  = {'S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L'};
 
 Shell char2shell(const char &c) {
     int shlind = Shell::charmap.at(c);

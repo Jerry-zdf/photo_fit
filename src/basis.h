@@ -25,7 +25,9 @@ class Shell {
                   F = 3,
                   G = 4,
                   H = 5,
-                  J = 6
+                  I = 6,
+                  K = 7,
+                  L = 8
     };
 
     friend Shell char2shell(const char &c);
