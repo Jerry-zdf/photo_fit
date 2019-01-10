@@ -3,10 +3,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[         0,          0]
-NotebookDataLength[     69152,       1272]
-NotebookOptionsPosition[     68321,       1240]
-NotebookOutlinePosition[     68649,       1255]
-CellTagsIndexPosition[     68606,       1252]
+NotebookDataLength[     72526,       1364]
+NotebookOptionsPosition[     71652,       1331]
+NotebookOutlinePosition[     71980,       1346]
+CellTagsIndexPosition[     71937,       1343]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -1236,7 +1236,98 @@ d/vw0QLu5/+lKKS9jI6y1coFD1vAQdK59wrGy2jYuGuDZ9QCpp2totW3WUZr
    3.733736201578073*^9, 3.733736305382908*^9}, 3.733736337082955*^9, {
    3.756117649827901*^9, 3.756117674195879*^9}, 3.756117894764544*^9, {
    3.756117954692513*^9, 3.75611804847703*^9}}]
-}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ToOldFormat", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"funkcjatabout", "[", 
+          RowBox[{"[", 
+           RowBox[{"1", ",", " ", 
+            RowBox[{"2", " ", "+", " ", 
+             RowBox[{"j", "*", "11"}], " ", "+", " ", "i"}], ",", "2"}], 
+           "]"}], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"funkcjatabout", "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ",", " ", 
+             RowBox[{"2", " ", "+", " ", 
+              RowBox[{"j", "*", "11"}], " ", "+", " ", "i"}], ",", "3"}], 
+            "]"}], "]"}], "*", " ", 
+          RowBox[{
+           RowBox[{"funkcjatabout", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", " ", 
+              RowBox[{"2", " ", "+", " ", 
+               RowBox[{"j", "*", "11"}], " ", "+", " ", "i"}], ",", "2"}], 
+             "]"}], "]"}], "^", 
+           RowBox[{"(", 
+            RowBox[{"0.75", " ", "+", " ", 
+             RowBox[{"j", "/", "2."}]}], ")"}]}]}], " ", ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}], ",", " ", 
+       "\[IndentingNewLine]", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"funkcjatabout", "[", 
+           RowBox[{"[", 
+            RowBox[{"1", ",", " ", 
+             RowBox[{"2", " ", "+", " ", 
+              RowBox[{"j", "*", "11"}], " ", "+", " ", "i"}], ",", "4"}], 
+            "]"}], "]"}], "*", " ", 
+          RowBox[{
+           RowBox[{"funkcjatabout", "[", 
+            RowBox[{"[", 
+             RowBox[{"1", ",", " ", 
+              RowBox[{"2", " ", "+", " ", 
+               RowBox[{"j", "*", "11"}], " ", "+", " ", "i"}], ",", "2"}], 
+             "]"}], "]"}], "^", 
+           RowBox[{"(", 
+            RowBox[{"0.75", " ", "+", " ", 
+             RowBox[{"j", "/", "2."}]}], ")"}]}]}], " ", ",", 
+         RowBox[{"{", 
+          RowBox[{"i", ",", "1", ",", "10"}], "}"}]}], "]"}]}], "}"}], ",", 
+     " ", 
+     RowBox[{"{", 
+      RowBox[{"j", ",", "0", ",", "maxL"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"l", " ", "=", " ", "0"}], ",", " ", 
+   RowBox[{"l", "\[LessEqual]", "maxL"}], ",", " ", 
+   RowBox[{"l", "++"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Export", "[", 
+     RowBox[{
+      RowBox[{"StringJoin", "[", 
+       RowBox[{
+       "\"\</home/mateusz/Documents/continuum_fits/output/fit_z1_k\>\"", ",", 
+        " ", 
+        RowBox[{"ToString", "[", 
+         RowBox[{"SetAccuracy", "[", 
+          RowBox[{"kk", ",", "4"}], "]"}], "]"}], ",", " ", "\"\<_l\>\"", ",", 
+        RowBox[{"ToString", "[", "l", "]"}], ",", "\"\<.dat\>\""}], "]"}], 
+      ",", 
+      RowBox[{"ToOldFormat", "[", 
+       RowBox[{"[", 
+        RowBox[{"l", "+", "1"}], "]"}], "]"}]}], "]"}], ";"}]}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{" "}]}], "Input",
+ CellChangeTimes->{{3.7561218815658913`*^9, 3.756121882131688*^9}, {
+  3.756121967828773*^9, 3.756122120998114*^9}, {3.7561222839391317`*^9, 
+  3.756122286072583*^9}}]
 },
 WindowSize->{1600, 1163},
 WindowMargins->{{1, Automatic}, {-1, 11}},
@@ -1266,7 +1357,8 @@ Cell[19875, 449, 5071, 70, 30, "Input"],
 Cell[CellGroupData[{
 Cell[24971, 523, 4216, 59, 32, "Input"],
 Cell[29190, 584, 39115, 653, 822, "Output"]
-}, Open  ]]
+}, Open  ]],
+Cell[68320, 1240, 3328, 89, 133, "Input"]
 }
 ]
 *)
