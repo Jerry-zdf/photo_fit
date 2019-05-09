@@ -22,7 +22,7 @@
                 <Entry key="population.size">100</Entry>
                 <Entry key="term.maxgen">100</Entry>
                 <Entry key="term.eval">100000</Entry>
-                <Entry key="log.frequency">1</Entry>
+                <Entry key="log.frequency">20</Entry>
                 <Entry key="log.level">3</Entry>
                 <Entry key="randomizer.seed">0</Entry>
 	</Registry>

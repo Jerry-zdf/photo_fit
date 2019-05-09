@@ -3,6 +3,7 @@
 import mpmath
 import os.path
 import sys
+import numpy as np
 
 def o_function(l, k, r):
     res = mpmath.hyp1f1(-1j / k + l, 2 * l + 2, -2 * 1j * k * r)
@@ -18,7 +19,8 @@ r_min = 0.01
 r_step = 0.1
 r_max = 30.
 
-kvals = sys.argv[1:]
+
+kvals = open(sys.argv[1], 'r').read().split()
 
 for kval in kvals:
     k = float(kval)
