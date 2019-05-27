@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from mpl_toolkits.axisartist.axislines import SubplotZero
 from matplotlib.ticker import MultipleLocator
 from matplotlib import rcParams
 rcParams['font.family'] = 'serif'
@@ -45,23 +46,29 @@ ig, ir, ii = get_input(k, l)
 
 
 
-plt.figure(figsize=(5.5, 4.5))
+fig, ax = plt.subplots(1, figsize=(5, 3.5))
+plt.tight_layout()
 
-plt.plot(fg, fr, color="red" , linestyle=(0, ())          , linewidth=line_width)
-plt.plot(fg, fi, color="blue", linestyle=(0, (3, 1, 1, 1)), linewidth=line_width)
+ax.spines['left'].set_position('zero')
+ax.spines['right'].set_color('none')
+ax.spines['bottom'].set_position('zero')
+ax.spines['top'].set_color('none')
 
-plt.plot(ig, ir, 'o', markersize=marker_size, color="darkred"  )
-plt.plot(ig, ii, 's', markersize=marker_size, color="darkblue" )
+ax.plot(fg, fr, color="red" , linestyle=(0, ())          , linewidth=line_width)
+ax.plot(fg, fi, color="blue", linestyle=(0, (3, 1, 1, 1)), linewidth=line_width)
 
-plt.xlabel("$r$", fontsize=font_size)
-plt.ylabel("$(kr)^l \mathcal{O}_{kl}$", fontsize=font_size)
+ax.plot(ig, ir, 'o', markersize=marker_size, color="darkred"  )
+ax.plot(ig, ii, 's', markersize=marker_size, color="darkblue" )
+
+ax.set_xlabel("$r$", fontsize=font_size)
+#ax.set_ylabel("$k =$ "+"%.3f" % k + "     " + "$l=$ "+"%i" % l +, fontsize=font_size)
 
 bottom, top = plt.ylim()
 ypos = top - (top - bottom) / 7.
 
-plt.text(24.0, ypos, "$k =$ "+"%.3f" % k + "\n$l=$ "+"%i" % l, fontsize=font_size)
+ax.text(24.0, ypos, "$k =$ "+"%.3f" % k + "\n$l=$ "+"%i" % l, fontsize=font_size)
 
-plt.tick_params(axis='x', which="both",direction="in" )
-plt.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
+ax.tick_params(axis='x', which="both",direction="inout")
+ax.tick_params(axis='y', which='both', left=False, right=False, labelleft=False)
 
 plt.savefig("fit_k"+ "%.3f" % k + "_l" + "%i" % l +".png", dpi=300)
