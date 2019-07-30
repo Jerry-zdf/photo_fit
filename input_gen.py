@@ -14,18 +14,19 @@ def o_function(l, k, r):
     res *= mpmath.exp(mpmath.pi/(2 * k))
     return res
 
-l_max = 8
+l_max = 6
 r_min = 0.01
 r_step = 0.1
-r_max = 30.
+r_max = 60.
 
+inputpath = "input2"
 
 kvals = open(sys.argv[1], 'r').read().split()
 
 for kval in kvals:
     k = float(kval)
     for l in range(l_max + 1):
-        file_name = "input/z1_k" + ("%.3f" % k) + "_l" + str(l) + ".dat"
+        file_name = "input2/z1_k" + ("%.3f" % k) + "_l" + str(l) + ".dat"
         if os.path.isfile(file_name):
             continue
 
@@ -38,6 +39,7 @@ for kval in kvals:
             r += r_step
 
         output_file.close()
-        os.system("build/Release/./photo_fit " + file_name)
+    
+    os.system("build/Release/./photo_fit config.txt parameters.txt " + kval)
     
 

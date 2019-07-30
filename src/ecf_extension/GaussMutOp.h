@@ -1,5 +1,4 @@
-#ifndef GAUSSMUTOP_H
-#define GAUSSMUTOP_H
+#pragma once
 
 #include <vector>
 #include <ecf/ECF_base.h>
@@ -13,10 +12,9 @@ public:
     bool initialize( StateP state );
     void registerParameters( StateP state );
 
-    std::vector<double> stdDev;
-    std::vector<double> vecRate;
+private:
+    std::vector<double> _stdDev;
+    std::vector<double> _vecRate;
 
 };
 typedef boost::shared_ptr< GaussMutOp > GaussMutOpP;
-
-#endif // GAUSSMUTOP_H

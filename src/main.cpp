@@ -1,13 +1,17 @@
-#include <ecf/ECF.h>
-
-#include "EvalOp.h"
-#include "MyFloatingPoint.h"
-#include "basis.h"
-
-#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <regex>
+
+#include <ecf/ECF.h>
+
+#include "ecf_extension/EvalOp.h"
+#include "ecf_extension/MyFloatingPoint.h"
+
+#include "basis.h"
+#include "control_data.h"
+#include "gaussian_functor.h"
+#include "utils.h"
 
 using namespace Eigen;
 using namespace std;
@@ -18,135 +22,149 @@ double Norm(double a, int l) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        cout << " Usage: ./photo_fit <input_file> \n";
-        exit(EXIT_SUCCESS);
+    Clock clk;
+
+    if (argc != 4) {
+        cout << " Usage: ./photo_fit <config_file> <evol_parameters_file> <k_val>\n";
+        return EXIT_SUCCESS;
     }
 
-    clock_t t_start = clock();
+    const string kstr = argv[3];
 
-    int gauss_n = 10;
+    const auto control = Control_data::parse_input_file(argv[1]);
 
-    string input_file = argv[1];
-    size_t l_pos      = input_file.find("l");
-    size_t l2_pos     = input_file.find(".dat");
-    string l_number   = input_file.substr(l_pos + 1, l2_pos - l_pos - 1);
-    int l             = atoi(l_number.c_str());
+    const string input_with_k  = regex_replace(control.input_file_pattern, regex("<k>"), kstr);
+    const string output_with_k = regex_replace(control.output_file_pattern, regex("<k>"), kstr);
 
-    size_t k_pos  = input_file.find("k");
-    size_t k2_pos = input_file.find("_l");
-    string kstr   = input_file.substr(k_pos + 1, k2_pos - k_pos - 1);
-    double kval   = atof(kstr.c_str());
+    cout << control
+         << "\n\n";
 
-    ifstream input;
-    input.open(input_file);
+    cout << " Reading following files:\n";
 
-    double rn, real, imag;
-    vector<double> rvec;
-    vector<complex<double>> yvec;
-    string buff;
+    vector<string> input_files;
+    regex l_reg("<l>");
+    for (int l = 0; l <= control.max_l; ++l) {
+        input_files.emplace_back(regex_replace(input_with_k, l_reg, std::to_string(l)));
+        cout << " " << input_files.back() << '\n';
+    }
+    cout << "\n\n";
 
-    if (input.is_open()) {
-        while (getline(input, buff)) {
-            stringstream line(buff);
-            line >> rn >> real >> imag;
-            rvec.push_back(rn);
-            yvec.push_back(complex<double>(real, imag));
+    const double kval = std::stod(kstr);
+
+    Atom atom;
+    atom.label = control.basis_name;
+
+    for (int l = 0; l <= control.max_l; ++l) {
+        ifstream input;
+        input.open(control.in_path + "/" + input_files[l]);
+
+        vector<double> rvec;
+        vector<complex<double>> yvec;
+        string buff;
+
+        if (input.is_open()) {
+            while (getline(input, buff)) {
+                stringstream line(buff);
+                double rn, real, imag;
+                line >> rn >> real >> imag;
+                rvec.push_back(rn);
+                yvec.push_back(complex<double>(real, imag));
+            }
+        } else
+            throw runtime_error("Unable to open input_file !");
+
+        input.close();
+
+        ArrayXd rv  = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
+        ArrayXcd yv = Map<ArrayXcd, Eigen::Unaligned>(yvec.data(), yvec.size());
+
+        Gaussian_fit fit(control.contraction_size, l, rv, yv);
+
+        cout << "\n\n"
+             << "======================================"
+             << "    STARTING EVOLUTIONARY ROUTINE     "
+             << "======================================"
+             << "\n\n";
+
+        StateP state(new State);
+        MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
+        state->setEvalOp(new EvalOp(fit));
+        state->addGenotype(gen);
+        char *ecf_command[] = {"./photo_fit", argv[2]};
+        state->initialize(3, ecf_command);
+        state->run();
+
+        MyFloatingPoint *best_gene =
+            static_cast<MyFloatingPoint *>(state->getHoF()->getBest()[0]->getGenotype().get());
+
+        VectorXd lm_sol(best_gene->realValue.size());
+        for (uint i = 0; i < best_gene->realValue.size(); ++i)
+            lm_sol[i] = best_gene->realValue[i];
+
+        cout << "\n\n"
+             << "======================================"
+             << " STARTING LEVENBERG-MARQUARDT ROUTINE "
+             << "======================================"
+             << "\n\n";
+
+        cout << " Starting solution:\n " << lm_sol.transpose() << "\n";
+
+        NumericalDiff<Gaussian_fit> num_diff(fit);
+        LevenbergMarquardt<NumericalDiff<Gaussian_fit>> lm(num_diff);
+
+        lm.setMaxfev(10000);
+        lm.setXtol(1.0e-20);
+        VectorXd fvec(fit.values());
+        fit(lm_sol, fvec);
+
+        cout << " Max fun eval:     " << lm.maxfev() << "\n";
+        cout << " x tolerance:      " << lm.xtol() << "\n";
+        cout << " Init funct val:   " << fvec.dot(fvec) << "\n";
+
+        int ret = lm.minimize(lm_sol);
+        cout << " Iterations count: " << lm.iterations() << "\n";
+        cout << " Routine status:   " << ret << "\n\n";
+        cout << setprecision(15);
+        cout << " Solution:\n " << lm_sol.transpose() << "\n";
+
+        const auto ls_sol = fit.generate_least_squares(lm_sol);
+        fit(lm_sol, fvec);
+        cout << " Function value at minimun: " << fvec.dot(fvec) << "\n";
+
+        VectorXd expv(control.contraction_size);
+        expv(0) = lm_sol(0);
+
+        for (int k = 1; k < expv.size(); ++k) {
+            expv[k] = lm_sol(0) * pow(lm_sol(1), k) * (1. + lm_sol(2) * pow((double)k / expv.size(), lm_sol(3)));
         }
-    } else
-        throw runtime_error("Unable to open input_file !");
 
-    input.close();
+        vector<double> exps(control.contraction_size);
+        vector<cdouble> coefs(control.contraction_size);
 
-    ArrayXd rv  = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
-    ArrayXcd yv = Map<ArrayXcd, Eigen::Unaligned>(yvec.data(), yvec.size());
+        GTOPW_contraction contr;
+        contr.gtopws.reserve(control.contraction_size);
+        contr.shl = int_to_shell(l);
 
-    GaussianFit fit(gauss_n, rv, yv);
-    fit.setL(l);
+        const auto kvec = control.k_dir * kval;
 
-    cout << "\n\n"
-         << "======================================"
-         << "    STARTING EVOLUTIONARY ROUTINE     "
-         << "======================================"
-         << "\n\n";
+        for (int i = 0; i < control.contraction_size; ++i) {
+            GTOPW_primitive prim;
+            prim.exp  = expv[i];
+            prim.coef = std::complex<double>(ls_sol.head(expv.size())[i], ls_sol.tail(expv.size())[i]);
+            prim.coef *= Norm(exps[i], l);
+            prim.k[0] = kvec(0);
+            prim.k[1] = kvec(1);
+            prim.k[2] = kvec(2);
+            contr.gtopws.push_back(prim);
+        }
 
-    StateP state(new State);
-    MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
-    state->setEvalOp(new EvalOp(fit));
-    state->addGenotype(gen);
-    char *ecf_command[] = {"./photo_fit", "parameters.txt"};
-    state->initialize(3, ecf_command);
-    state->run();
-
-    MyFloatingPoint *best_gene =
-        static_cast<MyFloatingPoint *>(state->getHoF()->getBest()[0]->getGenotype().get());
-
-    VectorXd lm_sol(best_gene->realValue.size());
-    for (uint i = 0; i < best_gene->realValue.size(); ++i)
-        lm_sol[i] = best_gene->realValue[i];
-
-    cout << "\n\n"
-         << "======================================"
-         << " STARTING LEVENBERG-MARQUARDT ROUTINE "
-         << "======================================"
-         << "\n\n";
-
-    cout << " Starting solution:\n " << lm_sol.transpose() << "\n";
-
-    NumericalDiff<GaussianFit> numDiff(fit);
-    LevenbergMarquardt<NumericalDiff<GaussianFit>> lm(numDiff);
-
-    lm.setMaxfev(10000);
-    lm.setXtol(1.0e-20);
-    VectorXd fvec(fit.values());
-    fit(lm_sol, fvec);
-
-    cout << " Max fun eval:     " << lm.maxfev() << "\n";
-    cout << " x tolerance:      " << lm.xtol() << "\n";
-    cout << " Init funct val:   " << fvec.dot(fvec) << "\n";
-
-    int ret = lm.minimize(lm_sol);
-    cout << " Iterations count: " << lm.iterations() << "\n";
-    cout << " Routine status:   " << ret << "\n\n";
-    cout << setprecision(15);
-    cout << " Solution:\n " << lm_sol.transpose() << "\n";
-
-    VectorXd ls_sol;
-    fit.generateLeastSqares(lm_sol, ls_sol);
-    fit(lm_sol, fvec);
-    cout << " Function value at minimun: " << fvec.dot(fvec) << "\n";
-
-    VectorXd expv(gauss_n);
-    expv(0) = lm_sol(0);
-
-    for (int k = 1; k < expv.size(); ++k) {
-        expv[k] = lm_sol(0) * pow(lm_sol(1), k) * (1. + lm_sol(2) * pow((double)k / expv.size(), lm_sol(3)));
+        atom.contractions.push_back(contr);
     }
 
-    size_t dir_pos = input_file.find("input/");
-    input_file.erase(input_file.begin(), input_file.begin() + 6 + dir_pos);
-
-    string output_file = "output/fit_z1_k" + kstr + ".dat";
-    ofstream output(output_file, ios::app);
-    if (l == 0)
-        output << "CONT 0   0.000000 0.000000 0.000000\n";
-
-    vector<double> exps(gauss_n);
-    vector<cdouble> coefs(gauss_n);
-
-    for (int i = 0; i < gauss_n; ++i) {
-        exps[i]  = expv[i];
-        coefs[i] = std::complex<double>(ls_sol.head(expv.size())[i], ls_sol.tail(expv.size())[i]);
-        coefs[i] *= Norm(exps[i], l);
-    }
-
-    GTOPW orbital(exps, coefs, Shell(l), {kval, 0., 0.});
-    output << orbital;
+    ofstream output(control.out_path + "/" + output_with_k);
+    output << atom << '\n';
     output.close();
 
-    cout << endl
-         << setprecision(3);
-    clock_t t_end  = clock();
-    float duration = t_end - t_start;
-    cout << " CPU time: " << duration / CLOCKS_PER_SEC << "\n";
+    cout << " Wall time: " << setprecision(5) << fixed << clk << "\n\n";
+    return EXIT_SUCCESS;
 }

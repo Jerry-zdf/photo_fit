@@ -1,14 +1,48 @@
-cmake_minimum_required(VERSION 3.1)
-project(photo_fit VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.8)
+project(photo_fit VERSION 1.1.0 LANGUAGES CXX)
 
-file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
 
-add_executable(${PROJECT_NAME} ${sources} ${headers})
+if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
+     message("debug mode")
+endif()
+
+
+add_executable(${PROJECT_NAME}
+                src/ecf_extension/EvalOp.h
+                src/ecf_extension/EvalOp.cpp
+                src/ecf_extension/GaussMutOp.h
+                src/ecf_extension/GaussMutOp.cpp
+                src/ecf_extension/MyFloatingPoint.h
+                src/ecf_extension/MyFloatingPoint.cpp
+                src/gaussian_functor.h
+                src/gaussian_functor.cpp
+                src/basis.h
+                src/basis.cpp
+                src/control_data.h
+                src/control_data.cpp
+                src/utils.h
+                src/utils.cpp
+                src/main.cpp
+                )
+
+target_compile_features(${PROJECT_NAME} PUBLIC
+                        cxx_std_11)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:FIT_DEBUG>")
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -pipe -O3 -std=c++11)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen ecf)
+target_include_directories(${PROJECT_NAME} PUBLIC src)
+
+find_package(OpenMP REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
+find_library(ECF NAMES libecf.so)
+ 
+target_link_libraries (${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX Eigen3::Eigen ${ECF})
+ 

@@ -1,97 +1,75 @@
-#ifndef BASIS_H
-#define BASIS_H
+#pragma once
 
 #include <array>
 #include <complex>
+#include <fstream>
 #include <iostream>
-#include <map>
 #include <string>
 #include <vector>
-#include <cassert>
 
 using Vec3d   = std::array<double, 3>;
 using cdouble = std::complex<double>;
 
-
-class Shell {
-   public:
-    static const std::array<int, 11> crt_siz;
-    static const std::array<int, 11> labels;
-    static const std::map<char, int> charmap;
-
-    enum Shells { S = 0,
-                  P = 1,
-                  D = 2,
-                  F = 3,
-                  G = 4,
-                  H = 5,
-                  I = 6,
-                  K = 7,
-                  L = 8
-    };
-
-    friend Shell char2shell(const char &c);
-    friend char shell2char(const Shell &shell);
-    friend int shell2int(const Shell &shell);
-
-    Shell(const Shell &shell) = default;
-    Shell(const int &shell) {
-        shl = static_cast<Shells>(shell);
-    }
-
-   private:
-    Shells shl;
+enum class Shell { S = 0,
+                   P = 1,
+                   D = 2,
+                   F = 3,
+                   G = 4,
+                   H = 5,
+                   I = 6,
+                   K = 7,
+                   L = 8
 };
 
-class GTOPW {
-   public:
-    GTOPW(const std::vector<double> &exponents,
-          const std::vector<cdouble> &coefficients,
-          const Shell &shell,
-          const Vec3d kvec)
-        : shl(shell) {
-        assert(exponents.size() == coefficients.size());
+Shell char_to_shell(const char &c);
+char shell_to_char(const Shell &shell);
+int shell_to_int(const Shell &shell);
+Shell int_to_shell(const int &l);
 
-        size  = exponents.size();
-        exps  = exponents;
-        coefs = coefficients;
-        k     = kvec;
-    };
-
-    GTOPW() : exps(), coefs(), shl(0), size(0) {
-        k = {0, 0, 0};
-    };
-
-    friend std::ostream &operator<<(std::ostream &os, const GTOPW &rhs);
-    bool read(std::istream &is);
-    int functions_number() const;
-    inline void set_kvec(const Vec3d &kvec) { k = kvec; };
-
-   private:
-    std::vector<double> exps;
-    std::vector<cdouble> coefs;
-    Shell shl;
-    Vec3d k;
-    int size;
-};
-
-class Basis {
-   public:
-    Basis() : gtopws(), label(), charge(0.) {
-        position = {0, 0, 0};
-    };
+struct GTOPW_primitive {
+    double exp{0};
+    cdouble coef{0};
+    Vec3d k{0, 0, 0};
 
     bool read(std::istream &is);
-    friend std::ostream &operator<<(std::ostream &os, const Basis &rhs);
-    int functions_number() const;
-    inline void set_position(const Vec3d &pos) { position = pos; };
-    inline void set_label(const std::string &lb) { label = lb; };
-
-   private:
-    std::vector<GTOPW> gtopws;
-    std::string label;
-    double charge;
-    Vec3d position;
 };
 
-#endif
+std::ostream &operator<<(std::ostream &os, const GTOPW_primitive &rhs);
+
+struct GTOPW_contraction {
+    Shell shl{Shell::S};
+    std::vector<GTOPW_primitive> gtopws{};
+
+    bool read(std::istream &is);
+    int functions_number_sph() const;
+    int functions_number_crt() const;
+};
+
+std::ostream &operator<<(std::ostream &os, const GTOPW_contraction &rhs);
+
+struct Atom {
+    std::string label{};
+    double charge{0.0};
+    Vec3d position{0, 0, 0};
+    std::vector<GTOPW_contraction> contractions{};
+
+    bool read(std::istream &is, const std::string &end_token = "$END");
+    int functions_number_sph() const;
+    int functions_number_crt() const;
+};
+
+std::ostream &operator<<(std::ostream &os, const Atom &rhs);
+
+struct Basis {
+    std::vector<Atom> atoms{};
+
+    bool read(std::istream &is, const std::string &start_token = "$BASIS", const std::string &end_token = "$END");
+    int functions_number_sph() const;
+    int functions_number_crt() const;
+    Shell get_max_shell() const;
+    void truncate_at(const Shell &shl);
+};
+
+std::ostream &operator<<(std::ostream &os, const Basis &rhs);
+
+void punch_xgtopw_header(std::ofstream &ofs);
