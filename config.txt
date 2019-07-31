@@ -1,8 +1,8 @@
 CONTRACTION_SIZE        10
 INPUT_FILE              z1_k<k>_l<l>.dat
-INPUT_PATH             ./input2
+INPUT_PATH             ./input
 OUTPUT_FILE             fit_z1_k<k>.dat
-OUTPUT_PATH             ./output2
+OUTPUT_PATH             ./output
 K_PRECISION             3
 BASIS_NAME              CONT
 K_DIRECTION             0 0 1

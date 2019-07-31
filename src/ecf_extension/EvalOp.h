@@ -10,6 +10,6 @@ class EvalOp : public EvaluateOp {
     FitnessP evaluate(IndividualP individual) override;
 
    private:
-    Gaussian_fit _functor;
+    const Gaussian_fit& _functor;
 };
 typedef boost::shared_ptr<EvalOp> EvalOpP;

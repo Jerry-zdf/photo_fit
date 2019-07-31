@@ -50,6 +50,8 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "utility": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "core": "cpp",
+        "numericaldiff": "cpp"
     }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include "unsupported/Eigen/LevenbergMarquardt"
+#include <eigen3/unsupported/Eigen/LevenbergMarquardt>
 
 struct Gaussian_fit : Eigen::DenseFunctor<double> {
    public:

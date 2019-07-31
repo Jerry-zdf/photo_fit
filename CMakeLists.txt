@@ -26,6 +26,8 @@ add_executable(${PROJECT_NAME}
                 src/utils.h
                 src/utils.cpp
                 src/main.cpp
+                src/procedures.h
+                src/procedures.cpp
                 )
 
 target_compile_features(${PROJECT_NAME} PUBLIC
@@ -36,8 +38,6 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:FIT_DEBUG>"
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall)
-
-target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 find_package(OpenMP REQUIRED)
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
