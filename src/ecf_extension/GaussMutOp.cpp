@@ -1,8 +1,8 @@
 #include "GaussMutOp.h"
 
+#include <random>
 #include <sstream>
 #include <string>
-#include <random>
 
 #include "MyFloatingPoint.h"
 #include "utils.h"
@@ -21,7 +21,7 @@ bool GaussMutOp::initialize(StateP state) {
     probability_ = *static_cast<double*>(sptr.get());
 
     sptr          = myGenotype_->getParameterValue(state, "size");
-    uint gen_size = *static_cast<uint*>(sptr.get());
+    auto gen_size = *static_cast<uint*>(sptr.get());
 
     _vecRate.resize(gen_size);
     _stdDev.resize(gen_size);
@@ -39,15 +39,12 @@ bool GaussMutOp::initialize(StateP state) {
 }
 
 bool GaussMutOp::mutate(GenotypeP gene) {
-    MyFloatingPoint* FP = static_cast<MyFloatingPoint*>(gene.get());
-    std::normal_distribution<double> dist;
-    double offset;
+    auto FP = static_cast<MyFloatingPoint*>(gene.get());
 
-    for (uint i = 0; i < (uint)FP->realValue.size(); i++) {
+    for (uint i = 0; i < (uint)FP->realValue.size(); ++i) {
         if (state_->getRandomizer()->getRandomDouble() < _vecRate[i]) {
-            dist   = std::normal_distribution<double>(0.0, _stdDev[i]);
-            offset = dist(get_random_engine());
-            FP->realValue[i] += offset;
+            std::normal_distribution<double> dist(0.0, _stdDev[i]);
+            FP->realValue[i] += dist(get_random_engine());
             if (FP->realValue[i] > FP->getMaxVec()[i])
                 FP->realValue[i] = FP->getMaxVec()[i];
             if (FP->realValue[i] < FP->getMinVec()[i])

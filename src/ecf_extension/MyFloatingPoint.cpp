@@ -6,6 +6,15 @@
 
 #include "GaussMutOp.h"
 
+MyFloatingPoint::MyFloatingPoint() {
+    name_ = "MyFPGenotype";
+}
+
+MyFloatingPoint* MyFloatingPoint::copy() {
+    MyFloatingPoint* newObject = new MyFloatingPoint(*this);
+    return newObject;
+}
+
 std::vector<MutationOpP> MyFloatingPoint::getMutationOp() {
     std::vector<MutationOpP> mut;
     mut.push_back(static_cast<MutationOpP>(new GaussMutOp));
@@ -28,7 +37,7 @@ bool MyFloatingPoint::initialize(StateP state) {
         !isParameterDefined(state, "max.vec") ||
         !isParameterDefined(state, "size")) {
         ECF_LOG_ERROR(state, "Error: Parameters required for MyFloatingPoint genotype not defined (min.vec, max.vec, size)!");
-        throw("");
+        throw std::runtime_error("Error: Parameters required for MyFloatingPoint genotype not defined (min.vec, max.vec, size)!");
     }
 
     voidP sptr  = getParameterValue(state, "size");
@@ -36,7 +45,7 @@ bool MyFloatingPoint::initialize(StateP state) {
 
     if (nDimension_ < 1) {
         ECF_LOG_ERROR(state, "Error: 'size' must be > 0 for FloatingPoint genotype!");
-        throw("");
+        throw std::runtime_error("Error: 'size' must be > 0 for FloatingPoint genotype!");
     }
     realValue.resize(nDimension_);
     _minVec.resize(nDimension_);

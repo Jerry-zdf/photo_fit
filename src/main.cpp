@@ -55,8 +55,7 @@ int main(int argc, char *argv[]) {
     atom.label = control.basis_name;
 
     for (int l = 0; l <= control.max_l; ++l) {
-        ifstream input;
-        input.open(control.in_path + "/" + input_files[l]);
+        ifstream input(control.in_path + "/" + input_files[l]);
 
         vector<double> rvec;
         vector<complex<double>> yvec;
@@ -135,11 +134,8 @@ int main(int argc, char *argv[]) {
         expv(0) = lm_sol(0);
 
         for (int k = 1; k < expv.size(); ++k) {
-            expv[k] = lm_sol(0) * pow(lm_sol(1), k) * (1. + lm_sol(2) * pow((double)k / expv.size(), lm_sol(3)));
+            expv(k) = lm_sol(0) * pow(lm_sol(1), k) * (1. + lm_sol(2) * pow((double)k / expv.size(), lm_sol(3)));
         }
-
-        vector<double> exps(control.contraction_size);
-        vector<cdouble> coefs(control.contraction_size);
 
         GTOPW_contraction contr;
         contr.gtopws.reserve(control.contraction_size);
@@ -149,9 +145,9 @@ int main(int argc, char *argv[]) {
 
         for (int i = 0; i < control.contraction_size; ++i) {
             GTOPW_primitive prim;
-            prim.exp  = expv[i];
-            prim.coef = std::complex<double>(ls_sol.head(expv.size())[i], ls_sol.tail(expv.size())[i]);
-            prim.coef *= Norm(exps[i], l);
+            prim.exp  = expv(i);
+            prim.coef = ls_sol.head(expv.size())(i) + 1i * ls_sol.tail(expv.size())(i);
+            prim.coef *= Norm(expv(i), l);
             prim.k[0] = kvec(0);
             prim.k[1] = kvec(1);
             prim.k[2] = kvec(2);

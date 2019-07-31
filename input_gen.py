@@ -17,7 +17,7 @@ def o_function(l, k, r):
 l_max = 6
 r_min = 0.01
 r_step = 0.1
-r_max = 60.
+r_max = 30.
 
 inputpath = "input2"
 
