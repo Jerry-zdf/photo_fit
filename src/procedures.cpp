@@ -14,6 +14,7 @@ using namespace Eigen;
 using namespace std;
 
 VectorXd solve_levenberg_marquardt(const Gaussian_fit& fit, VectorXd& vec_to_minimzie) {
+    cout << scientific;
     cout << " Starting solution:\n " << setprecision(15) << vec_to_minimzie.transpose() << "\n\n";
 
     NumericalDiff<Gaussian_fit> num_diff(fit);
@@ -24,7 +25,6 @@ VectorXd solve_levenberg_marquardt(const Gaussian_fit& fit, VectorXd& vec_to_min
     VectorXd fvec(fit.values());
     fit(vec_to_minimzie, fvec);
 
-    cout << scientific;
 
     cout << " Max fun eval:              " << setw(20) << setprecision(12) << lm.maxfev() << "\n"
          << " x tolerance:               " << setw(20) << setprecision(12) << lm.xtol() << "\n"

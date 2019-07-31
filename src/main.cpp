@@ -34,6 +34,7 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
+    cout << scientific;
     const auto control = Control_data::parse_input_file(argv[1]);
 
     stringstream ss;
