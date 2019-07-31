@@ -47,13 +47,17 @@ VectorXd get_evolutionary_minimizer(const Gaussian_fit& fit, char* ecf_command[]
     MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
     state->setEvalOp(new EvalOp(fit));
     state->addGenotype(gen);
-    state->initialize(3, ecf_command);
+    #ifdef FIT_DEBUG
+    cout << " ECF command: " << ecf_command[0] << "  " << ecf_command[1] << "\n\n";
+    #endif
+    state->initialize(2, ecf_command);
     state->run();
 
     MyFloatingPoint* best_gene =
-        static_cast<MyFloatingPoint*>(state->getHoF()->getBest()[0]->getGenotype().get());
+        static_cast<MyFloatingPoint*>(state->getHoF()->getBest().front()->getGenotype().get());
 
-    return Map<VectorXd>(best_gene->realValue.data(), best_gene->realValue.size());
+    VectorXd res = Map<VectorXd>(best_gene->realValue.data(), best_gene->realValue.size());
+    return res;
 }
 
 Gaussian_fit get_gaussian_functor_from_file(const string& file_name, const Control_data& control, const int& l) {
