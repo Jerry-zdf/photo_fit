@@ -14,7 +14,7 @@ FitnessP EvalOp::evaluate(IndividualP individual) {
 
     assert(_functor.inputs() == gen->realValue.size());
 
-    Eigen::VectorXd xvec = Eigen::Map<Eigen::VectorXd>(gen->realValue.data(), gen->realValue.size());
+    auto xvec = Eigen::Map<Eigen::VectorXd>(gen->realValue.data(), gen->realValue.size());
 
     Eigen::VectorXd fvec;
     _functor(xvec, fvec);

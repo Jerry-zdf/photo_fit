@@ -9,13 +9,16 @@ using std::pow;
 Gaussian_fit::Gaussian_fit(const int &gauss_cout, const int &l, const Eigen::ArrayXd &grid, const Eigen::ArrayXcd &function_values)
     : Eigen::DenseFunctor<double>(4, 2 * grid.size()), _yv(function_values), _rv(grid), _l(l), _gauss_cout(gauss_cout) {
     assert(_rv.size() == _yv.size());
-    assert(_gauss_cout <= _rv.size());
+
+    if (_gauss_cout > _rv.size()) {
+        throw std::runtime_error("Number of gaussian functions is larger that grid points.");
+    }
 }
 
 int Gaussian_fit::operator()(const InputType &x, ValueType &fvec) const {
-    assert(x.size() == this->inputs());
+    assert(x.size() == inputs());
 
-    fvec.resize(this->values());
+    fvec.resize(values());
     fvec.head(_rv.size()) = _yv.real();
     fvec.tail(_rv.size()) = _yv.imag();
 
@@ -37,11 +40,10 @@ Eigen::VectorXd Gaussian_fit::generate_least_squares(const Eigen::Vector4d &x) c
         mat.col(k).array() = exp(-ed * pow(_rv, 2)) * pow(_rv, _l);
     }
 
-    Eigen::VectorXd sol;
-    sol.resize(2 * _gauss_cout);
+    Eigen::VectorXd sol(2 * _gauss_cout);
     sol.head(_gauss_cout) = (mat.transpose() * mat).ldlt().solve(mat.transpose() * _yv.real().matrix());
     sol.tail(_gauss_cout) = (mat.transpose() * mat).ldlt().solve(mat.transpose() * _yv.imag().matrix());
-    //    sol.head(_gauss_cout) = mat.colPivHouseholderQr().solve(yv.real().matrix());
-    //    sol.tail(_gauss_cout) = mat.colPivHouseholderQr().solve(yv.imag().matrix());
+    //    sol.head(_gauss_cout) = mat.colPivHouseholderQr().solve(_yv.real().matrix());
+    //    sol.tail(_gauss_cout) = mat.colPivHouseholderQr().solve(_yv.imag().matrix());
     return sol;
 }

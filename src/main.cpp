@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <regex>
+#include <complex>
 
 #include <ecf/ECF.h>
 
@@ -29,9 +30,12 @@ int main(int argc, char *argv[]) {
         return EXIT_SUCCESS;
     }
 
-    const string kstr = argv[3];
-
     const auto control = Control_data::parse_input_file(argv[1]);
+
+    stringstream ss;
+    ss << fixed << setprecision(control.k_precision) << stod(argv[3]);
+    const string kstr = ss.str();
+    const double kval = stod(kstr);
 
     const string input_with_k  = regex_replace(control.input_file_pattern, regex("<k>"), kstr);
     const string output_with_k = regex_replace(control.output_file_pattern, regex("<k>"), kstr);
@@ -42,68 +46,61 @@ int main(int argc, char *argv[]) {
     cout << " Reading following files:\n";
 
     vector<string> input_files;
-    regex l_reg("<l>");
     for (int l = 0; l <= control.max_l; ++l) {
-        input_files.emplace_back(regex_replace(input_with_k, l_reg, std::to_string(l)));
+        input_files.emplace_back(regex_replace(input_with_k, regex("<l>"), std::to_string(l)));
         cout << " " << input_files.back() << '\n';
     }
     cout << "\n\n";
 
-    const double kval = std::stod(kstr);
 
     Atom atom;
     atom.label = control.basis_name;
 
     for (int l = 0; l <= control.max_l; ++l) {
-        ifstream input(control.in_path + "/" + input_files[l]);
+        const string in_file_name = control.in_path + "/" + input_files[l];
+        ifstream input(in_file_name);
 
         vector<double> rvec;
         vector<complex<double>> yvec;
-        string buff;
 
         if (input.is_open()) {
+            string buff;
             while (getline(input, buff)) {
                 stringstream line(buff);
                 double rn, real, imag;
                 line >> rn >> real >> imag;
                 rvec.push_back(rn);
-                yvec.push_back(complex<double>(real, imag));
+                yvec.push_back(real +1i * imag);
             }
         } else
-            throw runtime_error("Unable to open input_file !");
+            throw runtime_error("Unable to open input_file " + in_file_name + "!");
 
         input.close();
 
-        ArrayXd rv  = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
-        ArrayXcd yv = Map<ArrayXcd, Eigen::Unaligned>(yvec.data(), yvec.size());
+        auto rv  = Map<ArrayXd, Eigen::Unaligned>(rvec.data(), rvec.size());
+        auto yv = Map<ArrayXcd, Eigen::Unaligned>(yvec.data(), yvec.size());
 
         Gaussian_fit fit(control.contraction_size, l, rv, yv);
 
         cout << "\n\n"
-             << "======================================"
              << "    STARTING EVOLUTIONARY ROUTINE     "
-             << "======================================"
              << "\n\n";
 
         StateP state(new State);
         MyFloatingPointP gen = static_cast<MyFloatingPointP>(new MyFloatingPoint);
         state->setEvalOp(new EvalOp(fit));
         state->addGenotype(gen);
-        char *ecf_command[] = {"./photo_fit", argv[2]};
+        char *ecf_command[] = {argv[0], argv[2]};
         state->initialize(3, ecf_command);
         state->run();
 
         MyFloatingPoint *best_gene =
             static_cast<MyFloatingPoint *>(state->getHoF()->getBest()[0]->getGenotype().get());
 
-        VectorXd lm_sol(best_gene->realValue.size());
-        for (uint i = 0; i < best_gene->realValue.size(); ++i)
-            lm_sol[i] = best_gene->realValue[i];
+        VectorXd lm_sol = Map<VectorXd>(best_gene->realValue.data(), best_gene->realValue.size());
 
         cout << "\n\n"
-             << "======================================"
              << " STARTING LEVENBERG-MARQUARDT ROUTINE "
-             << "======================================"
              << "\n\n";
 
         cout << " Starting solution:\n " << lm_sol.transpose() << "\n";
@@ -128,7 +125,7 @@ int main(int argc, char *argv[]) {
 
         const auto ls_sol = fit.generate_least_squares(lm_sol);
         fit(lm_sol, fvec);
-        cout << " Function value at minimun: " << fvec.dot(fvec) << "\n";
+        cout << " Function value at minimun: " << fvec.dot(fvec) << "\n\n\n";
 
         VectorXd expv(control.contraction_size);
         expv(0) = lm_sol(0);
