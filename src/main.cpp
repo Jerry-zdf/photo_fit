@@ -1,17 +1,11 @@
-#include <complex>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <regex>
 
-#include <ecf/ECF.h>
-
-#include "ecf_extension/EvalOp.h"
-#include "ecf_extension/MyFloatingPoint.h"
 
 #include "basis.h"
 #include "control_data.h"
-#include "gaussian_functor.h"
 #include "procedures.h"
 #include "utils.h"
 
