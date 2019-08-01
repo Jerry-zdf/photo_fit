@@ -39,7 +39,9 @@ Control_data Control_data::parse_input_file(const std::string &input_file) {
             cd.k_dir(1) = std::stod(search->second.at(1));
             cd.k_dir(2) = std::stod(search->second.at(2));
         }
-        cd.k_dir /= cd.k_dir.norm();
+        const auto norm = cd.k_dir.norm();
+        if (norm != 0)
+            cd.k_dir /= norm;
     }
 
     file.close();
