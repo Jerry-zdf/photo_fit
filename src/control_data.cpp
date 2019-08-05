@@ -16,6 +16,18 @@ Control_data Control_data::parse_input_file(const std::string &input_file) {
             val = search->second.at(0);
     };
 
+    auto set_unique_bool = [&](const std::string &key, bool &val) {
+        const auto search = keys.find(key);
+        if (search != keys.end()) {
+            std::string token = search->second.at(0);
+            std::transform(token.begin(), token.end(), token.begin(), ::tolower);
+            if (token == "y" || token == "yes")
+                val = true;
+            else if (token == "n" || token == "no")
+                val = false;
+        }
+    };
+
     set_unique_string("INPUT_FILE", cd.input_file_pattern);
     set_unique_string("OUTPUT_FILE", cd.output_file_pattern);
     set_unique_string("OUTPUT_PATH", cd.out_path);
@@ -31,6 +43,8 @@ Control_data Control_data::parse_input_file(const std::string &input_file) {
     set_unique_int("CONTRACTION_SIZE", cd.contraction_size);
     set_unique_int("K_PRECISION", cd.k_precision);
     set_unique_int("MAX_L", cd.max_l);
+
+    set_unique_bool("USE_K", cd.use_k);
 
     {
         const auto search = keys.find("K_DIRECTION");
@@ -81,6 +95,7 @@ std::ostream &operator<<(std::ostream &os, const Control_data &rhs) {
     os << "OUTPUT_PATH                          " << rhs.out_path << '\n';
     os << "INPUT_PATH                           " << rhs.in_path << '\n';
     os << "============================================================================\n";
+    os << "USE_K                                " << (rhs.use_k ? 'Y' : 'N' ) << '\n';
     os << "K_PRECISION                          " << rhs.k_precision << '\n';
     os << "K_DIRECTION                          " << rhs.k_dir.transpose() << '\n';
     os << "MAX_L                                " << rhs.max_l << '\n';

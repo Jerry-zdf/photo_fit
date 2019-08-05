@@ -21,6 +21,8 @@ class Control_data {
     int contraction_size{10};
     int max_l{6};
 
+    bool use_k{true};
+
     static Control_data parse_input_file(const std::string &input_file);
 
    private:

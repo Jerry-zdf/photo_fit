@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     stringstream ss;
     ss << fixed << setprecision(control.k_precision) << stod(argv[3]);
     const string kstr = ss.str();
-    const double kval = stod(kstr);
+    const double kval = control.use_k ? stod(kstr) : 0.0;
 
     const string input_with_k  = regex_replace(control.input_file_pattern, regex("<k>"), kstr);
     const string output_with_k = regex_replace(control.output_file_pattern, regex("<k>"), kstr);

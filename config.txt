@@ -7,3 +7,4 @@ K_PRECISION             3
 BASIS_NAME              CONT
 K_DIRECTION             0 0 1
 MAX_L                   6
+USE_K                   Y
