@@ -12,16 +12,20 @@
 using namespace Eigen;
 using namespace std;
 
-int main(int argc, char *argv[]) {
-    Clock clk;
 
 #ifdef FIT_DEBUG
-    argc    = 4;
+int main() {
+    int argc    = 4;
+    char* argv[4];
     argv[0] = "./photo_fit";
     argv[1] = "config.txt";
     argv[2] = "parameters.txt";
     argv[3] = "0.05";
+#else
+int main(int argc, char *argv[]) {
 #endif
+
+    Clock clk;
 
     if (argc != 4) {
         cout << " Usage: ./photo_fit <config_file> <evol_parameters_file> <k_val>\n";
