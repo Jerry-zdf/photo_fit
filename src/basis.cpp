@@ -11,11 +11,23 @@ static const std::map<char, int> shell_charmap = {{'S', 0},
                                                   {'H', 5},
                                                   {'I', 6},
                                                   {'K', 7},
-                                                  {'L', 8}};
+                                                  {'L', 8},
+                                                  {'M', 9},
+                                                  {'N', 10},
+                                                  {'O', 11},
+                                                  {'R', 12},
+                                                  {'T', 13},
+                                                  {'U', 14},
+                                                  {'W', 15},
+                                                  {'X', 16},
+                                                  {'Y', 17},
+                                                  {'Z', 18},
+                                                  {'A', 19},
+                                                  {'B', 20}};
 
-static constexpr std::array<int, 11> shell_crt_siz = {1, 3, 6, 10, 15, 21, 28, 36, 45, 55};
-static constexpr std::array<int, 11> shell_sph_siz = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
-static constexpr std::array<char, 11> shell_labels = {'S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L'};
+static constexpr std::array<int, 21> shell_crt_siz = {1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 153, 171, 190, 210, 231};
+static constexpr std::array<int, 21> shell_sph_siz = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41};
+static constexpr std::array<char, 21> shell_labels = {'S', 'P', 'D', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'R', 'T', 'U', 'W', 'X', 'Y', 'Z', 'A', 'B'};
 
 Shell char_to_shell(const char &c) {
     return static_cast<Shell>(shell_charmap.at(c));
@@ -29,11 +41,9 @@ int shell_to_int(const Shell &shell) {
     return static_cast<int>(shell);
 }
 
-Shell int_to_shell(const int &l){
+Shell int_to_shell(const int &l) {
     return char_to_shell(shell_labels.at(l));
 }
-
-
 
 bool GTOPW_primitive::read(std::istream &is) {
     std::string line;

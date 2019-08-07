@@ -18,7 +18,19 @@ enum class Shell { S = 0,
                    H = 5,
                    I = 6,
                    K = 7,
-                   L = 8
+                   L = 8,
+                   M = 9,
+                   N = 10,
+                   O = 11,
+                   R = 12,
+                   T = 13,
+                   U = 14,
+                   W = 15,
+                   X = 16,
+                   Y = 17,
+                   Z = 18,
+                   A = 19,
+                   B = 20
 };
 
 Shell char_to_shell(const char &c);
