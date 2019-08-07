@@ -19,14 +19,14 @@ r_min = 0.01
 r_step = 0.1
 r_max = 100.
 
-inputpath = "input2"
+inputpath = "input"
 
 kvals = open(sys.argv[1], 'r').read().split()
 
 for kval in kvals:
     k = float(kval)
     for l in range(l_max + 1):
-        file_name = "input2/z1_k" + ("%.3f" % k) + "_l" + str(l) + ".dat"
+        file_name = "input/z1_k" + ("%.3f" % k) + "_l" + str(l) + ".dat"
         if os.path.isfile(file_name):
             continue
 
